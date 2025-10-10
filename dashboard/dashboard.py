@@ -3,36 +3,27 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-sns.set(style='dark')
+# --- PENGATURAN TEMA DAN PALET WARNA ---
+sns.set_theme(style="whitegrid")
+custom_palette = ["#FF6B6B", "#FFD166", "#06D6A0", "#118AB2", "#073B4C"]
 
-# --- FUNGSI-FUNGSI ---
-# (Fungsi get_total_count_by_hour_df tidak digunakan, jadi bisa dihapus atau diabaikan)
-
-def count_by_day_df(day_df):
-    day_df_count = day_df.query(str('dteday >= "2011-01-01" and dteday <= "2012-12-31"'))
-    return day_df_count
-
+# --- FUNGSI-FUNGSI UNTUK MEMPROSES DATA ---
 def total_registered_df(day_df):
-    reg_df = day_df.groupby(by="dteday").agg({
-      "registered": "sum" # Sudah Benar
-    })
+    """Menghitung total pengguna terdaftar per hari."""
+    reg_df = day_df.groupby(by="dteday").agg({"registered": "sum"})
     reg_df = reg_df.reset_index()
-    reg_df.rename(columns={
-        "registered": "register_sum"
-    }, inplace=True)
+    reg_df.rename(columns={"registered": "register_sum"}, inplace=True)
     return reg_df
 
 def total_casual_df(day_df):
-    cas_df = day_df.groupby(by="dteday").agg({
-      "casual": "sum" # <<< INI YANG DIPERBAIKI
-    })
+    """Menghitung total pengguna biasa per hari."""
+    cas_df = day_df.groupby(by="dteday").agg({"casual": "sum"})
     cas_df = cas_df.reset_index()
-    cas_df.rename(columns={
-        "casual": "casual_sum"
-    }, inplace=True)
+    cas_df.rename(columns={"casual": "casual_sum"}, inplace=True)
     return cas_df
 
 def macem_season(day_df):
+    """Menghitung total penyewaan per musim."""
     season_df = day_df.groupby(by="season").count_cr.sum().reset_index()
     return season_df
 
@@ -40,134 +31,112 @@ def macem_season(day_df):
 days_df = pd.read_csv("dashboard/day_clean.csv")
 hours_df = pd.read_csv("dashboard/hour_clean.csv")
 
-datetime_columns = ["dteday"]
-for column in datetime_columns:
-    days_df[column] = pd.to_datetime(days_df[column])
-    hours_df[column] = pd.to_datetime(hours_df[column])
+# Mengonversi kolom tanggal ke tipe datetime
+for col in ["dteday"]:
+    days_df[col] = pd.to_datetime(days_df[col])
+    hours_df[col] = pd.to_datetime(hours_df[col])
 
 min_date_days = days_df["dteday"].min()
 max_date_days = days_df["dteday"].max()
 
 # --- SIDEBAR ---
 with st.sidebar:
+    # Ganti dengan link gambar/logo Anda
+    st.image("https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png")
+    
+    st.title("Kontrol & Informasi")
+    st.markdown("---")
+    
+    st.header("Filter Rentang Waktu")
     start_date, end_date = st.date_input(
-        label='Rentang Waktu',
+        label='Pilih tanggal analisis',
         min_value=min_date_days,
         max_value=max_date_days,
         value=[min_date_days, max_date_days]
     )
+    
+    st.markdown("---")
 
+    st.header("Tentang Projek")
+    st.info(
+        "Dasbor ini menganalisis data penyewaan sepeda dari XXX Bikeshare "
+        "selama 2011-2012 untuk memahami pola penyewaan berdasarkan waktu dan musim."
+    )
+
+    st.markdown("---")
+    st.caption("Made in Streamlit by andwynt")
+
+# --- MEMFILTER DATA BERDASARKAN INPUT SIDEBAR ---
 main_df_days = days_df[(days_df["dteday"] >= str(start_date)) & 
                        (days_df["dteday"] <= str(end_date))]
-
 main_df_hour = hours_df[(hours_df["dteday"] >= str(start_date)) & 
                         (hours_df["dteday"] <= str(end_date))]
 
-# --- MEMPROSES DATA UNTUK VISUALISASI ---
-day_df_count = count_by_day_df(main_df_days)
-reg_df = total_registered_df(main_df_days)
-cas_df = total_casual_df(main_df_days)
-season_df = macem_season(main_df_hour)
+# --- MEMBANGUN HALAMAN UTAMA DASBOR ---
+st.header('Bike Sharing Dashboard :bike:')
 
-# --- MEMBANGUN DASHBOARD ---
-st.header('Bike Sharing :sparkles:')
+# Menampilkan peringatan jika tidak ada data pada rentang yang dipilih
+if main_df_days.empty:
+    st.warning(f"⚠️ Tidak ada data pada rentang waktu yang dipilih. Silakan pilih rentang antara {min_date_days.strftime('%d-%m-%Y')} dan {max_date_days.strftime('%d-%m-%Y')}.")
+else:
+    # --- MEMPROSES DATA JIKA TERSEDIA ---
+    reg_df = total_registered_df(main_df_days)
+    cas_df = total_casual_df(main_df_days)
+    season_df = macem_season(main_df_hour)
+    
+    total_orders = main_df_days.count_cr.sum()
+    total_registered = reg_df.register_sum.sum()
+    total_casual = cas_df.casual_sum.sum()
+    
+    st.subheader('Ringkasan Data Penyewaan')
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Total Penyewaan", value=f"{total_orders:,}")
+    with col2:
+        st.metric("Pengguna Terdaftar", value=f"{total_registered:,}")
+    with col3:
+        st.metric("Pengguna Biasa", value=f"{total_casual:,}")
 
-st.subheader('Daily Sharing')
-col1, col2, col3 = st.columns(3)
+    st.markdown("---")
 
-total_orders = day_df_count.count_cr.sum()
-total_registered = reg_df.register_sum.sum()
-total_casual = cas_df.casual_sum.sum()
+    # --- VISUALISASI DATA ---
+    st.subheader("Perbandingan Tipe Pengguna")
+    user_type_data = pd.DataFrame({
+        'Tipe Pengguna': ['Terdaftar', 'Biasa'],
+        'Jumlah': [total_registered, total_casual]
+    }).sort_values(by='Jumlah', ascending=True)
 
-with col1:
-    st.metric("Total Sharing Bike", value=f"{total_orders:,}")
+    fig1, ax1 = plt.subplots(figsize=(10, 4))
+    bars1 = ax1.barh(user_type_data['Tipe Pengguna'], user_type_data['Jumlah'], color=custom_palette[:2])
+    ax1.set_xlabel('Jumlah Penyewaan')
+    ax1.set_title('Total Penyewaan Berdasarkan Tipe Pengguna')
+    ax1.bar_label(bars1, fmt='{:,.0f}', padding=3)
+    ax1.spines[['top', 'right', 'left']].set_visible(False)
+    st.pyplot(fig1)
 
-with col2:
-    st.metric("Total Registered", value=f"{total_registered:,}")
+    st.markdown("---")
 
-with col3:
-    st.metric("Total Casual", value=f"{total_casual:,}")
+    st.subheader("Pola Penyewaan Berdasarkan Jam")
+    fig2, ax2 = plt.subplots(figsize=(16, 8))
+    hourly_rentals = main_df_hour.groupby('hours')['count_cr'].sum()
+    bars2 = sns.barplot(x=hourly_rentals.index, y=hourly_rentals.values, palette=custom_palette, ax=ax2)
+    ax2.set_title("Jumlah Total Penyewaan Sepeda per Jam", fontsize=16)
+    ax2.set_xlabel("Jam dalam Sehari (0-23)")
+    ax2.set_ylabel("Total Penyewaan")
+    ax2.bar_label(bars2, fmt='{:,.0f}', fontsize=10, color='gray')
+    st.pyplot(fig2)
 
-# --- VISUALISASI DAN PENJELASAN ---
-st.markdown("---")
+    st.markdown("---")
 
-st.subheader("Perbandingan Pengguna Terdaftar (Registered) vs Biasa (Casual)")
-fig1, ax1 = plt.subplots(figsize=(10, 6))
-sizes = [total_casual, total_registered]
-labels = 'Casual', 'Registered'
-explode = (0, 0.1)
-ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-        colors=["#D3D3D3", "#90CAF9"], shadow=True, startangle=90)
-ax1.axis('equal')
-st.pyplot(fig1)
-
-st.markdown("""
-**Analisis:**
-- Mayoritas penyewa sepeda adalah **pengguna yang sudah terdaftar (Registered)**, mencapai lebih dari 80% dari total penyewaan.
-- **Pengguna biasa (Casual)**, yaitu mereka yang menyewa tanpa akun terdaftar, merupakan minoritas yang signifikan (sekitar 18-19%).
-
-**Rekomendasi Bisnis:**
-- **Fokus pada Retensi**: Karena basis pengguna terbesar adalah pelanggan terdaftar, program loyalitas, diskon khusus anggota, atau fitur premium dapat meningkatkan retensi.
-- **Strategi Konversi**: Perlu adanya strategi untuk mengubah pengguna *casual* menjadi *registered*. Contohnya, menawarkan diskon untuk penyewaan pertama setelah mendaftar.
-""")
-
-st.markdown("---")
-
-st.subheader("Pola Penyewaan Sepeda Berdasarkan Jam dalam Sehari")
-fig, ax = plt.subplots(figsize=(20, 8))
-hourly_rentals = main_df_hour.groupby('hours')['count_cr'].sum()
-peak_hour = hourly_rentals.idxmax()
-colors = ["#90CAF9" if i == peak_hour else "#D3D3D3" for i in hourly_rentals.index]
-sns.barplot(x=hourly_rentals.index, y=hourly_rentals.values, palette=colors, ax=ax)
-ax.set_title("Jumlah Total Penyewaan Sepeda per Jam", fontsize=20)
-ax.set_xlabel("Jam (0-23)", fontsize=15)
-ax.set_ylabel("Total Penyewaan", fontsize=15)
-ax.tick_params(axis='x', labelsize=12)
-ax.tick_params(axis='y', labelsize=12)
-st.pyplot(fig)
-
-st.markdown("""
-**Analisis:**
-- Grafik menunjukkan **dua puncak utama (jam sibuk)** penyewaan dalam sehari. Biasanya terjadi pada pagi hari (sekitar jam 8 pagi) dan sore hari (sekitar jam 5-6 sore).
-- Pola ini sangat identik dengan **jam berangkat dan pulang kerja/sekolah**, menunjukkan bahwa sepeda banyak digunakan untuk komuter.
-- Jam dengan penyewaan **paling sedikit** terjadi pada dini hari, yaitu antara jam 1 hingga 4 pagi, di mana aktivitas masyarakat sangat rendah.
-
-**Rekomendasi Operasional:**
-- **Alokasi Sepeda**: Pastikan ketersediaan sepeda di stasiun-stasiun populer (terutama di area perumahan dan perkantoran) beberapa saat sebelum jam sibuk pagi dan sore.
-- **Penawaran Promosi**: Untuk meningkatkan penggunaan di luar jam sibuk (misalnya, jam 10 pagi - 3 sore), perusahaan bisa menawarkan tarif diskon atau paket "sewa makan siang".
-""")
-
-st.markdown("---")
-
-st.subheader("Pola Penyewaan Sepeda Berdasarkan Musim")
-fig, ax = plt.subplots(figsize=(16, 8))
-season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
-season_labels = {1: 'Springer', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
-season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
-peak_season = season_df_sorted.iloc[0]['season_name']
-colors = ["#90CAF9" if s == peak_season else "#D3D3D3" for s in season_df_sorted['season_name']]
-sns.barplot(
-    x="season_name",
-    y="count_cr",
-    data=season_df_sorted,
-    palette=colors,
-    ax=ax
-)
-ax.set_title("Total Penyewaan Sepeda per Musim", loc="center", fontsize=20)
-ax.set_ylabel("Total Penyewaan", fontsize=15)
-ax.set_xlabel("Musim", fontsize=15)
-ax.tick_params(axis='x', labelsize=12)
-ax.tick_params(axis='y', labelsize=12)
-st.pyplot(fig)
-
-st.markdown("""
-*(Catatan: 1: Musim Semi (Springer), 2: Musim Panas (Summer), 3: Musim Gugur (Fall), 4: Musim Dingin (Winter))*
-
-**Analisis:**
-- **Musim Gugur (Fall)** tercatat sebagai musim dengan jumlah penyewaan sepeda tertinggi, diikuti oleh Musim Panas (Summer) dan Musim Semi (Springer). Cuaca yang sejuk dan nyaman pada musim-musim ini sangat mendukung aktivitas bersepeda.
-- **Musim Dingin (Winter)** memiliki jumlah penyewaan terendah. Hal ini wajar karena cuaca yang dingin, bersalju, atau hujan membuat orang enggan bersepeda.
-
-**Rekomendasi Strategis:**
-- **Perencanaan Inventaris**: Persiapkan jumlah sepeda dan petugas operasional yang lebih banyak menjelang musim puncak (Gugur dan Panas).
-- **Program Musim Dingin**: Selama musim dingin, fokus dapat dialihkan ke perawatan dan perbaikan armada sepeda. Selain itu, promosi khusus "bersepeda di hari yang cerah saat musim dingin" bisa dicoba untuk menarik minat pengguna.
-""")
+    st.subheader("Pola Penyewaan Berdasarkan Musim")
+    fig3, ax3 = plt.subplots(figsize=(12, 7))
+    season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
+    season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
+    season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
+    
+    bars3 = sns.barplot(x="count_cr", y="season_name", data=season_df_sorted, palette=custom_palette, ax=ax3)
+    ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
+    ax3.set_xlabel("Total Penyewaan")
+    ax3.set_ylabel("Musim")
+    ax3.bar_label(bars3, fmt='{:,.0f}', padding=3)
+    st.pyplot(fig3)
