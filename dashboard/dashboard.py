@@ -123,35 +123,23 @@ else:
 
     st.markdown("---")
     
-    st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
-    fig3, ax3 = plt.subplots(figsize=(12, 7))
+    st.pyplot(fig)
 
-    season_df_sorted = season_df.sort_values(by="season", ascending=True)
+    st.subheader("musim apa yang paling banyak disewa?")
 
-    season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-    season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
-
-    bars3 = sns.barplot(
-        x="season_name", 
+    colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#90CAF9"]
+    fig, ax = plt.subplots(figsize=(20, 10))
+    sns.barplot(
         y="count_cr", 
-        data=season_df_sorted, 
-        palette=custom_palette, 
-        ax=ax3
-    )
-
-    ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
-    ax3.set_xlabel("Musim")
-    ax3.set_ylabel("Total Penyewaan")
-
-    for bar in bars3.patches:
-        ax3.text(
-            bar.get_x() + bar.get_width() / 2, 
-            bar.get_height(), 
-            f'{int(bar.get_height()):,}', 
-            ha='center', 
-            va='bottom', 
-            size=10, 
-            color='gray'
+        x="season",
+        data=season_df.sort_values(by="season", ascending=False),
+        palette=colors,
+        ax=ax
         )
+    ax.set_title("Grafik Antar Musim", loc="center", fontsize=50)
+    ax.set_ylabel(None)
+    ax.set_xlabel(None)
+    ax.tick_params(axis='x', labelsize=35)
+    ax.tick_params(axis='y', labelsize=30)
+    st.pyplot(fig)
 
-    st.pyplot(fig3)
