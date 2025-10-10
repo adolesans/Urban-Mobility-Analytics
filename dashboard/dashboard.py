@@ -183,7 +183,6 @@ else:
         st.markdown(
             """
             Grafik ini membandingkan total penyewaan di empat musim yang berbeda.
-            *(Catatan: 1: Semi, 2: Panas, 3: Gugur, 4: Dingin)*
             
             - **Insight**: Penyewaan sepeda sangat dipengaruhi oleh cuaca. Musim dengan cuaca paling nyaman (Gugur/Fall) memiliki jumlah penyewaan tertinggi.
             - **Rekomendasi**: 
@@ -191,3 +190,4 @@ else:
                 2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
             """
         )
+
