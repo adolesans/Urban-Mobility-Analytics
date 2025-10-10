@@ -41,12 +41,9 @@ max_date_days = days_df["dteday"].max()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    # Ganti dengan link gambar/logo Anda
-    st.image("https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png")
-    
+    st.image("https://www.onepointltd.com/wp-content/uploads/2003/inno2.png")
     st.title("Kontrol & Informasi")
     st.markdown("---")
-    
     st.header("Filter Rentang Waktu")
     start_date, end_date = st.date_input(
         label='Pilih tanggal analisis',
@@ -54,32 +51,27 @@ with st.sidebar:
         max_value=max_date_days,
         value=[min_date_days, max_date_days]
     )
-    
     st.markdown("---")
-
-    st.header("Tentang Projek")
+    st.header("Tentang Proyek")
     st.info(
-        "Dasbor ini menganalisis data penyewaan sepeda dari XXX Bikeshare "
+        "Dasbor ini menganalisis data penyewaan sepeda dari Capital Bikeshare "
         "selama 2011-2012 untuk memahami pola penyewaan berdasarkan waktu dan musim."
     )
-
     st.markdown("---")
     st.caption("Made in Streamlit by andwynt")
 
 # --- MEMFILTER DATA BERDASARKAN INPUT SIDEBAR ---
-main_df_days = days_df[(days_df["dteday"] >= str(start_date)) & 
+main_df_days = days_df[(days_df["dteday"] >= str(start_date)) &
                        (days_df["dteday"] <= str(end_date))]
-main_df_hour = hours_df[(hours_df["dteday"] >= str(start_date)) & 
+main_df_hour = hours_df[(hours_df["dteday"] >= str(start_date)) &
                         (hours_df["dteday"] <= str(end_date))]
 
 # --- MEMBANGUN HALAMAN UTAMA DASBOR ---
-st.header('Bike Sharing Dashboard :bike:')
+st.header(':bike: Bike Sharing Dashboard :bike:')
 
-# Menampilkan peringatan jika tidak ada data pada rentang yang dipilih
 if main_df_days.empty:
     st.warning(f"⚠️ Tidak ada data pada rentang waktu yang dipilih. Silakan pilih rentang antara {min_date_days.strftime('%d-%m-%Y')} dan {max_date_days.strftime('%d-%m-%Y')}.")
 else:
-    # --- MEMPROSES DATA JIKA TERSEDIA ---
     reg_df = total_registered_df(main_df_days)
     cas_df = total_casual_df(main_df_days)
     season_df = macem_season(main_df_hour)
@@ -99,7 +91,6 @@ else:
 
     st.markdown("---")
 
-    # --- VISUALISASI DATA ---
     st.subheader("Perbandingan Tipe Pengguna")
     user_type_data = pd.DataFrame({
         'Tipe Pengguna': ['Terdaftar', 'Biasa'],
@@ -110,8 +101,11 @@ else:
     bars1 = ax1.barh(user_type_data['Tipe Pengguna'], user_type_data['Jumlah'], color=custom_palette[:2])
     ax1.set_xlabel('Jumlah Penyewaan')
     ax1.set_title('Total Penyewaan Berdasarkan Tipe Pengguna')
-    ax1.bar_label(bars1, fmt='{:,.0f}', padding=3)
     ax1.spines[['top', 'right', 'left']].set_visible(False)
+    # PERBAIKAN: Menggunakan metode manual untuk menambahkan label
+    for bar in bars1:
+        width = bar.get_width()
+        ax1.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig1)
 
     st.markdown("---")
@@ -123,7 +117,10 @@ else:
     ax2.set_title("Jumlah Total Penyewaan Sepeda per Jam", fontsize=16)
     ax2.set_xlabel("Jam dalam Sehari (0-23)")
     ax2.set_ylabel("Total Penyewaan")
-    ax2.bar_label(bars2, fmt='{:,.0f}', fontsize=10, color='gray')
+    # PERBAIKAN: Menggunakan metode manual untuk menambahkan label
+    for bar in bars2.patches:
+        ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'{bar.get_height():,.0f}',
+                 ha='center', va='bottom', size=10, color='gray')
     st.pyplot(fig2)
 
     st.markdown("---")
@@ -138,5 +135,9 @@ else:
     ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
     ax3.set_xlabel("Total Penyewaan")
     ax3.set_ylabel("Musim")
-    ax3.bar_label(bars3, fmt='{:,.0f}', padding=3)
+    
+    # Menggunakan metode manual untuk menambahkan label
+    for bar in bars3.patches:
+        width = bar.get_width()
+        ax3.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig3)
