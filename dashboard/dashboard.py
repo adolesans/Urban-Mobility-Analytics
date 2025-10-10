@@ -102,16 +102,23 @@ else:
         st.markdown("- **Insight Utama**: Permintaan memuncak pada **jam komuter (08:00 & 17:00-18:00)**.\n- **Rekomendasi Bisnis**: Lakukan **realokasi armada** ke titik-titik strategis sebelum jam sibuk.")
 
     st.markdown("---")
+    
+    st.subheader("Musim apa yang paling banyak disewa?")
 
-    st.subheader("Analisis Performa Berdasarkan Musim")
-    season_df = main_df_days.groupby(by="season")["count_cr"].sum().reset_index()
-    season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-    season_df['season_name'] = season_df['season'].map(season_labels)
-    fig3, ax3 = plt.subplots(figsize=(12, 7))
-    sns.barplot(x="season_name", y="count_cr", data=season_df.sort_values(by="season", ascending=True), palette=custom_palette, ax=ax3)
-    ax3.set_title("Perbandingan Kinerja Antar Musim", fontsize=16); ax3.set_xlabel("Musim"); ax3.set_ylabel("Total Penyewaan")
-    for bar in ax3.patches:
-        ax3.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{int(bar.get_height()):,}', ha='center', va='bottom', size=10, color='gray')
+    colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#90CAF9"]
+    fig3, ax3 = plt.subplots(figsize=(20, 10))
+    sns.barplot(
+        y="count_cr", 
+        x="season",
+        data=season_df.sort_values(by="season", ascending=False),
+        palette=colors,
+        ax=ax3
+        )
+    ax3.set_title("Grafik Antar Musim", loc="center", fontsize=50)
+    ax3.set_ylabel(None)
+    ax3.set_xlabel(None)
+    ax3.tick_params(axis='x', labelsize=35)
+    ax3.tick_params(axis='y', labelsize=30)
     st.pyplot(fig3)
     with st.expander("Lihat Insight dan Rekomendasi 📈"):
         st.markdown("- **Insight Utama**: **Musim Gugur** adalah periode kinerja puncak.\n- **Rekomendasi Bisnis**: Jadwalkan **perawatan armada** pada Musim Semi (periode terendah).")
@@ -125,3 +132,4 @@ else:
         file_name='filtered_data.csv',
         mime='text/csv'
     )
+
