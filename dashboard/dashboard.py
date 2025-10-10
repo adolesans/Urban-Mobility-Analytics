@@ -42,7 +42,7 @@ max_date_days = days_df["dteday"].max()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://pngtree.com/freepng/mountain-vintage-biking-cycling-t-shirt-design_6611753.html")
+    st.image("https://www.freepik.com/free-psd/classic-red-bicycle-vintage-ride_410000716.htm#fromView=search&page=1&position=2&uuid=6e2aeceb-fd5c-41a3-baf1-bd6b545eaa6d&query=Bike+png")
     st.title("Informasi")
     st.markdown("---")
     st.header("🗓️ Filter Rentang Waktu")
@@ -190,6 +190,7 @@ else:
                 2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
             """
         )
+
 
 
 
