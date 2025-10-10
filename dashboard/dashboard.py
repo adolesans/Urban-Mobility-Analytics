@@ -42,7 +42,6 @@ max_date_days = days_df["dteday"].max()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    # Membuat logo di tengah dengan markdown
     st.markdown(
         f"""
         <div style="text-align: center;">
@@ -52,10 +51,6 @@ with st.sidebar:
         unsafe_allow_html=True
     )
     
-    st.title("Informasi")
-    st.markdown("---")
-
-    # Memindahkan "Tentang Proyek" ke atas
     st.header("📖 Tentang Proyek")
     st.info(
         "Dasbor ini menganalisis data penyewaan sepeda dari Bikeshare Company "
@@ -63,7 +58,7 @@ with st.sidebar:
     )
     st.markdown("---")
 
-    # Filter tetap di bawah
+    # Filter
     st.header("🗓️ Filter Rentang Waktu")
     start_date, end_date = st.date_input(
         label='Pilih tanggal analisis',
@@ -203,6 +198,7 @@ else:
                 2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
             """
         )
+
 
 
 
