@@ -123,23 +123,21 @@ else:
 
     st.markdown("---")
     
-    st.pyplot(fig)
-
-    st.subheader("musim apa yang paling banyak disewa?")
+    # --- PERBAIKAN: Menggunakan blok kode yang Anda inginkan ---
+    st.subheader("Musim apa yang paling banyak disewa?")
 
     colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#90CAF9"]
-    fig, ax = plt.subplots(figsize=(20, 10))
+    fig3, ax3 = plt.subplots(figsize=(20, 10))
     sns.barplot(
         y="count_cr", 
         x="season",
         data=season_df.sort_values(by="season", ascending=False),
         palette=colors,
-        ax=ax
+        ax=ax3
         )
-    ax.set_title("Grafik Antar Musim", loc="center", fontsize=50)
-    ax.set_ylabel(None)
-    ax.set_xlabel(None)
-    ax.tick_params(axis='x', labelsize=35)
-    ax.tick_params(axis='y', labelsize=30)
-    st.pyplot(fig)
-
+    ax3.set_title("Grafik Antar Musim", loc="center", fontsize=50)
+    ax3.set_ylabel(None)
+    ax3.set_xlabel(None)
+    ax3.tick_params(axis='x', labelsize=35)
+    ax3.tick_params(axis='y', labelsize=30)
+    st.pyplot(fig3)
