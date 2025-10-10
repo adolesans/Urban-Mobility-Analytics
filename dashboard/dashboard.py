@@ -76,7 +76,8 @@ main_df_hour = hours_df[(hours_df["dteday"] >= str(start_date)) &
                         (hours_df["dteday"] <= str(end_date))]
 
 # --- MEMBANGUN HALAMAN UTAMA DASBOR ---
-st.header('Bike Sharing Dashboard :bike:')
+st.markdown("<h1 style='text-align: center;'>Dashboard Kinerja Operasional</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>BikeSharing Company</h3>", unsafe_allow_html=True)
 
 if main_df_days.empty:
     st.warning(f"⚠️ Tidak ada data pada rentang waktu yang dipilih. Silakan pilih rentang antara {min_date_days.strftime('%d-%m-%Y')} dan {max_date_days.strftime('%d-%m-%Y')}.")
@@ -197,4 +198,14 @@ else:
                 1.  Alokasikan lebih banyak sepeda untuk menghadapi musim puncak.
                 2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
             """
+            # --- FITUR DOWNLOAD DATA ---
+    st.markdown("---")
+    st.subheader("Unduh Data yang Difilter")
+    st.download_button(
+        label="📥 Unduh sebagai CSV",
+        data=main_df_days.to_csv(index=False).encode('utf-8'),
+        file_name='filtered_data.csv',
+        mime='text/csv'
+    )
         )
+
