@@ -24,6 +24,7 @@ def total_casual_df(day_df):
 
 def macem_season(day_df):
     """Menghitung total penyewaan per musim."""
+    # Fungsi ini mengharapkan day_df yang memiliki kolom 'season'
     season_df = day_df.groupby(by="season").count_cr.sum().reset_index()
     return season_df
 
@@ -41,10 +42,10 @@ max_date_days = days_df["dteday"].max()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://www.onepointltd.com/wp-content/uploads/2003/inno2.png")
+    st.image("https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png")
     st.title("Kontrol & Informasi")
     st.markdown("---")
-    st.header("Filter Rentang Waktu")
+    st.header("🗓️ Filter Rentang Waktu")
     start_date, end_date = st.date_input(
         label='Pilih tanggal analisis',
         min_value=min_date_days,
@@ -52,7 +53,7 @@ with st.sidebar:
         value=[min_date_days, max_date_days]
     )
     st.markdown("---")
-    st.header("Tentang Proyek")
+    st.header("📖 Tentang Proyek")
     st.info(
         "Dasbor ini menganalisis data penyewaan sepeda dari Capital Bikeshare "
         "selama 2011-2012 untuk memahami pola penyewaan berdasarkan waktu dan musim."
@@ -67,14 +68,16 @@ main_df_hour = hours_df[(hours_df["dteday"] >= str(start_date)) &
                         (hours_df["dteday"] <= str(end_date))]
 
 # --- MEMBANGUN HALAMAN UTAMA DASBOR ---
-st.header(':bike: Bike Sharing Dashboard :bike:')
+st.header('Bike Sharing Dashboard :bike:')
 
 if main_df_days.empty:
     st.warning(f"⚠️ Tidak ada data pada rentang waktu yang dipilih. Silakan pilih rentang antara {min_date_days.strftime('%d-%m-%Y')} dan {max_date_days.strftime('%d-%m-%Y')}.")
 else:
+    # --- MEMPROSES DATA JIKA TERSEDIA ---
     reg_df = total_registered_df(main_df_days)
     cas_df = total_casual_df(main_df_days)
-    season_df = macem_season(main_df_hour)
+    # PERBAIKAN: Menggunakan main_df_days yang memiliki kolom 'season'
+    season_df = macem_season(main_df_days) 
     
     total_orders = main_df_days.count_cr.sum()
     total_registered = reg_df.register_sum.sum()
@@ -91,7 +94,7 @@ else:
 
     st.markdown("---")
 
-    st.subheader("Perbandingan Tipe Pengguna")
+    st.subheader("📊 Perbandingan Tipe Pengguna")
     user_type_data = pd.DataFrame({
         'Tipe Pengguna': ['Terdaftar', 'Biasa'],
         'Jumlah': [total_registered, total_casual]
@@ -102,7 +105,6 @@ else:
     ax1.set_xlabel('Jumlah Penyewaan')
     ax1.set_title('Total Penyewaan Berdasarkan Tipe Pengguna')
     ax1.spines[['top', 'right', 'left']].set_visible(False)
-    # PERBAIKAN: Menggunakan metode manual untuk menambahkan label
     for bar in bars1:
         width = bar.get_width()
         ax1.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
@@ -110,14 +112,13 @@ else:
 
     st.markdown("---")
 
-    st.subheader("Pola Penyewaan Berdasarkan Jam")
+    st.subheader("⏰ Pola Penyewaan Berdasarkan Jam")
     fig2, ax2 = plt.subplots(figsize=(16, 8))
     hourly_rentals = main_df_hour.groupby('hours')['count_cr'].sum()
     bars2 = sns.barplot(x=hourly_rentals.index, y=hourly_rentals.values, palette=custom_palette, ax=ax2)
     ax2.set_title("Jumlah Total Penyewaan Sepeda per Jam", fontsize=16)
     ax2.set_xlabel("Jam dalam Sehari (0-23)")
     ax2.set_ylabel("Total Penyewaan")
-    # PERBAIKAN: Menggunakan metode manual untuk menambahkan label
     for bar in bars2.patches:
         ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'{bar.get_height():,.0f}',
                  ha='center', va='bottom', size=10, color='gray')
@@ -125,7 +126,7 @@ else:
 
     st.markdown("---")
 
-    st.subheader("Pola Penyewaan Berdasarkan Musim")
+    st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
     fig3, ax3 = plt.subplots(figsize=(12, 7))
     season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
     season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
@@ -135,8 +136,6 @@ else:
     ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
     ax3.set_xlabel("Total Penyewaan")
     ax3.set_ylabel("Musim")
-    
-    # Menggunakan metode manual untuk menambahkan label
     for bar in bars3.patches:
         width = bar.get_width()
         ax3.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
