@@ -101,7 +101,7 @@ else:
 
     st.markdown("---")
 
-    st.subheader("📊 Perbandingan Tipe Pengguna")
+    st.subheader("Segmentasi Pelanggan: Terdaftar vs Biasa")
     user_type_data = pd.DataFrame({
         'Tipe Pengguna': ['Terdaftar', 'Biasa'],
         'Jumlah': [total_registered, total_casual]
@@ -117,12 +117,12 @@ else:
         ax1.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig1)
 
-    with st.expander("Lihat Analisis Tipe Pengguna 💡"):
+    with st.expander("📈Lihat Insight dan Rekomendasi"):
         st.markdown(
             """
             Grafik di atas menunjukkan perbandingan jumlah penyewaan antara pengguna yang sudah **terdaftar (registered)** dengan pengguna **biasa (casual)**.
             
-            - **Insight**: Mayoritas penyewaan (lebih dari 80%) dilakukan oleh pengguna terdaftar. Ini menandakan adanya basis pelanggan yang kuat dan loyal.
+            - **Insight Utama**: Mayoritas penyewaan (lebih dari 80%) dilakukan oleh pengguna terdaftar. Ini menandakan adanya basis pelanggan yang kuat dan loyal.
             - **Rekomendasi**: 
                 1.  Fokus pada program retensi untuk menjaga loyalitas pengguna terdaftar.
                 2.  Buat strategi untuk mengubah pengguna biasa menjadi pengguna terdaftar, misalnya dengan menawarkan diskon pada pendaftaran pertama.
@@ -131,7 +131,7 @@ else:
 
     st.markdown("---")
 
-    st.subheader("⏰ Pola Penyewaan Berdasarkan Jam")
+    st.subheader("Analisis Jam Sibuk Operasional")
     
     hourly_rentals_df = main_df_hour.groupby('hours')['count_cr'].sum().reset_index()
     
@@ -159,17 +159,18 @@ else:
     )
     st.altair_chart(chart, use_container_width=True)
 
-    with st.expander("Lihat Analisis Pola Per Jam 💡"):
+    with st.expander("📈Lihat Insight dan Rekomendasi"):
         st.markdown(
             """
             Arahkan kursor pada batang untuk melihat jumlah penyewa di setiap jam. 
-            Pola komuter sangat jelas terlihat dengan adanya puncak penyewaan di pagi (sekitar jam 8) dan sore hari (sekitar jam 17-18).
+            - **Insight Utama**: Pola komuter sangat jelas terlihat dengan adanya puncak penyewaan di pagi (sekitar jam 8) dan sore hari (sekitar jam 17-18).
+            - **Rekomendasi Bisnis**: Lakukan **relokasi armada** ke titik-titik strategis sebelum jam sibuk.
             """
         )
 
     st.markdown("---")
     
-    st.subheader("Musim apa yang paling banyak disewa?")
+    st.subheader("Analisis Performa Berdasarkan Musim")
 
     colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#90CAF9"]
     fig3, ax3 = plt.subplots(figsize=(20, 10))
@@ -187,12 +188,12 @@ else:
     ax3.tick_params(axis='y', labelsize=30)
     st.pyplot(fig3)
 
-    with st.expander("Lihat Analisis Pola Musim 💡"):
+    with st.expander("Lihat Insight dan Rekomendasi 📈"):
         st.markdown(
             """
             Grafik ini membandingkan total penyewaan di empat musim yang berbeda.
             
-            - **Insight**: Penyewaan sepeda sangat dipengaruhi oleh cuaca. Musim dengan cuaca paling nyaman (Gugur/Fall) memiliki jumlah penyewaan tertinggi.
+            - **Insight**: Penyewaan sepeda sangat dipengaruhi oleh cuaca. Musim dengan cuaca paling nyaman. Musim Gugur (Fall) memiliki jumlah penyewaan tertinggi.
             - **Rekomendasi**: 
                 1.  Alokasikan lebih banyak sepeda untuk menghadapi musim puncak.
                 2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
@@ -208,3 +209,4 @@ else:
         file_name='filtered_data.csv',
         mime='text/csv'
     )
+
