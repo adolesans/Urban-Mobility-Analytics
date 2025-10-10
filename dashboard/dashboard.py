@@ -24,8 +24,7 @@ def total_casual_df(day_df):
 
 def macem_season(day_df):
     """Menghitung total penyewaan per musim."""
-    # Fungsi ini mengharapkan day_df yang memiliki kolom 'season'
-    season_df = day_df.groupby(by="season").count_cr.sum().reset_index()
+    season_df = day_df.groupby(by="season")["count_cr"].sum().reset_index()
     return season_df
 
 # --- MEMBACA DAN MEMPERSIAPKAN DATA ---
@@ -73,11 +72,9 @@ st.header('Bike Sharing Dashboard :bike:')
 if main_df_days.empty:
     st.warning(f"⚠️ Tidak ada data pada rentang waktu yang dipilih. Silakan pilih rentang antara {min_date_days.strftime('%d-%m-%Y')} dan {max_date_days.strftime('%d-%m-%Y')}.")
 else:
-    # --- MEMPROSES DATA JIKA TERSEDIA ---
     reg_df = total_registered_df(main_df_days)
     cas_df = total_casual_df(main_df_days)
-    # PERBAIKAN: Menggunakan main_df_days yang memiliki kolom 'season'
-    season_df = macem_season(main_df_days) 
+    season_df = macem_season(main_df_days)
     
     total_orders = main_df_days.count_cr.sum()
     total_registered = reg_df.register_sum.sum()
@@ -126,7 +123,7 @@ else:
 
     st.markdown("---")
 
-st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
+    st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
     fig3, ax3 = plt.subplots(figsize=(12, 7))
     season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
     season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
@@ -144,4 +141,3 @@ st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
         width = bar.get_width()
         ax3.text(width + 3000, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig3)
-
