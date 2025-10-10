@@ -123,36 +123,33 @@ else:
 
     st.markdown("---")
 
-    st.pyplot(fig)
+    # PERBAIKAN: Baris berlebihan di bawah ini dihapus
+    # st.pyplot(fig) 
     
-st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
-fig, ax = plt.subplots(figsize=(12, 7))
+    # PERBAIKAN: Seluruh blok grafik musim ini dipindahkan ke dalam blok 'else'
+    st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
+    fig3, ax3 = plt.subplots(figsize=(12, 7))
 
-# Mengurutkan data berdasarkan jumlah penyewaan (count_cr), bukan season
-season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
-season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
+    season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
+    season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
+    season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
 
-# Menggunakan ax.barh untuk membuat grafik horizontal, sesuai gaya sebelumnya
-bars = ax.barh(
-    y=season_df_sorted["season_name"], 
-    width=season_df_sorted["count_cr"], 
-    color=custom_palette # Menggunakan palet warna yang sudah kita definisikan
-)
-
-# Menambahkan judul dan label
-ax.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
-ax.set_xlabel("Total Penyewaan")
-ax.set_ylabel("Musim")
-
-# Menambahkan label angka di ujung setiap bar
-for bar in bars:
-    width = bar.get_width()
-    ax.text(
-        width + 3000, # Memberi sedikit jarak dari ujung bar
-        bar.get_y() + bar.get_height() / 2, 
-        f'{width:,.0f}', 
-        va='center'
+    bars3 = ax3.barh(
+        y=season_df_sorted["season_name"], 
+        width=season_df_sorted["count_cr"], 
+        color=custom_palette
     )
 
-st.pyplot(fig)
+    ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
+    ax3.set_xlabel("Total Penyewaan")
+    ax3.set_ylabel("Musim")
+
+    for bar in bars3:
+        width = bar.get_width()
+        ax3.text(
+            width + 3000, 
+            bar.get_y() + bar.get_height() / 2, 
+            f'{width:,.0f}', 
+            va='center'
+        )
+    st.pyplot(fig3)
