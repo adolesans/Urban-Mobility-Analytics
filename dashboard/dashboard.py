@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
+import altair as alt 
 
 # --- PENGATURAN TEMA DAN PALET WARNA ---
 sns.set_theme(style="whitegrid")
@@ -107,7 +108,6 @@ else:
         ax1.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig1)
 
-    # --- PENJELASAN GRAFIK 1 ---
     with st.expander("Lihat Analisis Tipe Pengguna 💡"):
         st.markdown(
             """
@@ -122,41 +122,40 @@ else:
 
     st.markdown("---")
 
+    # --- PERUBAHAN: Grafik Jam menjadi Interaktif dengan Altair ---
     st.subheader("⏰ Pola Penyewaan Berdasarkan Jam")
-    fig2, ax2 = plt.subplots(figsize=(16, 8))
-    hourly_rentals = main_df_hour.groupby('hours')['count_cr'].sum()
-    bars2 = sns.barplot(x=hourly_rentals.index, y=hourly_rentals.values, palette=custom_palette, ax=ax2)
-    ax2.set_title("Jumlah Total Penyewaan Sepeda per Jam", fontsize=16)
-    ax2.set_xlabel("Jam dalam Sehari (0-23)")
-    ax2.set_ylabel("Total Penyewaan")
-    for bar in bars2.patches:
-        ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'{bar.get_height():,.0f}',
-                 ha='center', va='bottom', size=10, color='gray')
-    st.pyplot(fig2)
+    
+    hourly_rentals_df = main_df_hour.groupby('hours')['count_cr'].sum().reset_index()
+    
+    chart = (
+        alt.Chart(hourly_rentals_df)
+        .mark_bar(
+            cornerRadiusTopLeft=5,
+            cornerRadiusTopRight=5,
+            opacity=0.8,
+            color="#118AB2"
+        )
+        .encode(
+            x=alt.X("hours:O", title="Jam dalam Sehari"),
+            y=alt.Y("count_cr:Q", title="Total Penyewaan"),
+            tooltip=[
+                alt.Tooltip("hours:O", title="Jam"),
+                alt.Tooltip("count_cr:Q", title="Jumlah Penyewa", format=","),
+            ],
+        )
+        .properties(
+            title="Pola Penyewaan Sepeda Sepanjang Hari",
+        )
+        .configure_axis(labelFontSize=12, titleFontSize=14)
+        .configure_title(fontSize=16)
+    )
+    st.altair_chart(chart, use_container_width=True)
 
-    # --- PENJELASAN GRAFIK 2 ---
     with st.expander("Lihat Analisis Pola Per Jam 💡"):
         st.markdown(
             """
-            Grafik ini menampilkan pola penyewaan sepeda sepanjang hari. Terlihat ada dua puncak utama yang sangat jelas.
-            """
-        )
-        
-        peak_morning_hour = hourly_rentals.idxmax()
-        peak_evening_hour = hourly_rentals[12:].idxmax()
-
-        col_peak1, col_peak2 = st.columns(2)
-        with col_peak1:
-            st.metric("☀️ Puncak Pagi", f"Jam {peak_morning_hour}:00", f"{hourly_rentals.max():,} penyewa")
-        with col_peak2:
-            st.metric("🌙 Puncak Sore", f"Jam {peak_evening_hour}:00", f"{hourly_rentals[peak_evening_hour]:,} penyewa")
-
-        st.markdown(
-            """
-            - **Insight**: Pola ini sangat identik dengan jam komuter, yaitu **berangkat kerja/sekolah** di pagi hari dan **pulang** di sore hari.
-            - **Rekomendasi**: 
-                1.  Pastikan ketersediaan sepeda di lokasi-lokasi strategis (area perumahan dan perkantoran) sebelum jam sibuk.
-                2.  Tawarkan promo khusus pada jam sepi (misalnya pukul 10:00 - 15:00) untuk meratakan permintaan.
+            Arahkan kursor pada batang untuk melihat jumlah penyewa di setiap jam. 
+            Pola komuter sangat jelas terlihat dengan adanya puncak penyewaan di pagi (sekitar jam 8) dan sore hari (sekitar jam 17-18).
             """
         )
 
@@ -180,16 +179,15 @@ else:
     ax3.tick_params(axis='y', labelsize=30)
     st.pyplot(fig3)
 
-    # --- PENJELASAN GRAFIK 3 ---
     with st.expander("Lihat Analisis Pola Musim 💡"):
         st.markdown(
             """
             Grafik ini membandingkan total penyewaan di empat musim yang berbeda.
             *(Catatan: 1: Semi, 2: Panas, 3: Gugur, 4: Dingin)*
             
-            - **Insight**: Penyewaan sepeda sangat dipengaruhi oleh cuaca. Musim dengan cuaca paling nyaman (Gugur/Fall) memiliki jumlah penyewaan tertinggi, sedangkan musim dengan cuaca ekstrem (Dingin/Winter) cenderung lebih rendah.
+            - **Insight**: Penyewaan sepeda sangat dipengaruhi oleh cuaca. Musim dengan cuaca paling nyaman (Gugur/Fall) memiliki jumlah penyewaan tertinggi.
             - **Rekomendasi**: 
-                1.  Alokasikan lebih banyak sepeda dan siapkan tim operasional ekstra untuk menghadapi musim puncak.
-                2.  Manfaatkan musim sepi untuk melakukan perawatan dan perbaikan besar pada seluruh armada sepeda.
+                1.  Alokasikan lebih banyak sepeda untuk menghadapi musim puncak.
+                2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
             """
         )
