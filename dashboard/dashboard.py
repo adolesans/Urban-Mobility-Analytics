@@ -42,7 +42,7 @@ max_date_days = days_df["dteday"].max()
 # --- SIDEBAR ---
 with st.sidebar:
     st.image("https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png")
-    st.title("Kontrol & Informasi")
+    st.title("Informasi")
     st.markdown("---")
     st.header("🗓️ Filter Rentang Waktu")
     start_date, end_date = st.date_input(
@@ -54,7 +54,7 @@ with st.sidebar:
     st.markdown("---")
     st.header("📖 Tentang Proyek")
     st.info(
-        "Dasbor ini menganalisis data penyewaan sepeda dari Capital Bikeshare "
+        "Dasbor ini menganalisis data penyewaan sepeda dari Bikeshare Company "
         "selama 2011-2012 untuk memahami pola penyewaan berdasarkan waktu dan musim."
     )
     st.markdown("---")
@@ -107,6 +107,19 @@ else:
         ax1.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig1)
 
+    # --- PENJELASAN GRAFIK 1 ---
+    with st.expander("Lihat Analisis Tipe Pengguna 💡"):
+        st.markdown(
+            """
+            Grafik di atas menunjukkan perbandingan jumlah penyewaan antara pengguna yang sudah **terdaftar (registered)** dengan pengguna **biasa (casual)**.
+            
+            - **Insight**: Mayoritas penyewaan (lebih dari 80%) dilakukan oleh pengguna terdaftar. Ini menandakan adanya basis pelanggan yang kuat dan loyal.
+            - **Rekomendasi**: 
+                1.  Fokus pada program retensi untuk menjaga loyalitas pengguna terdaftar.
+                2.  Buat strategi untuk mengubah pengguna biasa menjadi pengguna terdaftar, misalnya dengan menawarkan diskon pada pendaftaran pertama.
+            """
+        )
+
     st.markdown("---")
 
     st.subheader("⏰ Pola Penyewaan Berdasarkan Jam")
@@ -121,9 +134,34 @@ else:
                  ha='center', va='bottom', size=10, color='gray')
     st.pyplot(fig2)
 
+    # --- PENJELASAN GRAFIK 2 ---
+    with st.expander("Lihat Analisis Pola Per Jam 💡"):
+        st.markdown(
+            """
+            Grafik ini menampilkan pola penyewaan sepeda sepanjang hari. Terlihat ada dua puncak utama yang sangat jelas.
+            """
+        )
+        
+        peak_morning_hour = hourly_rentals.idxmax()
+        peak_evening_hour = hourly_rentals[12:].idxmax()
+
+        col_peak1, col_peak2 = st.columns(2)
+        with col_peak1:
+            st.metric("☀️ Puncak Pagi", f"Jam {peak_morning_hour}:00", f"{hourly_rentals.max():,} penyewa")
+        with col_peak2:
+            st.metric("🌙 Puncak Sore", f"Jam {peak_evening_hour}:00", f"{hourly_rentals[peak_evening_hour]:,} penyewa")
+
+        st.markdown(
+            """
+            - **Insight**: Pola ini sangat identik dengan jam komuter, yaitu **berangkat kerja/sekolah** di pagi hari dan **pulang** di sore hari.
+            - **Rekomendasi**: 
+                1.  Pastikan ketersediaan sepeda di lokasi-lokasi strategis (area perumahan dan perkantoran) sebelum jam sibuk.
+                2.  Tawarkan promo khusus pada jam sepi (misalnya pukul 10:00 - 15:00) untuk meratakan permintaan.
+            """
+        )
+
     st.markdown("---")
     
-    # --- PERBAIKAN: Menggunakan blok kode yang Anda inginkan ---
     st.subheader("Musim apa yang paling banyak disewa?")
 
     colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#90CAF9"]
@@ -141,3 +179,17 @@ else:
     ax3.tick_params(axis='x', labelsize=35)
     ax3.tick_params(axis='y', labelsize=30)
     st.pyplot(fig3)
+
+    # --- PENJELASAN GRAFIK 3 ---
+    with st.expander("Lihat Analisis Pola Musim 💡"):
+        st.markdown(
+            """
+            Grafik ini membandingkan total penyewaan di empat musim yang berbeda.
+            *(Catatan: 1: Semi, 2: Panas, 3: Gugur, 4: Dingin)*
+            
+            - **Insight**: Penyewaan sepeda sangat dipengaruhi oleh cuaca. Musim dengan cuaca paling nyaman (Gugur/Fall) memiliki jumlah penyewaan tertinggi, sedangkan musim dengan cuaca ekstrem (Dingin/Winter) cenderung lebih rendah.
+            - **Rekomendasi**: 
+                1.  Alokasikan lebih banyak sepeda dan siapkan tim operasional ekstra untuk menghadapi musim puncak.
+                2.  Manfaatkan musim sepi untuk melakukan perawatan dan perbaikan besar pada seluruh armada sepeda.
+            """
+        )
