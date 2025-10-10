@@ -123,7 +123,6 @@ else:
 
     st.markdown("---")
     
-    # PERBAIKAN: Seluruh blok di bawah ini sekarang memiliki indentasi yang benar
     st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
     fig3, ax3 = plt.subplots(figsize=(12, 7))
 
