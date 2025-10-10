@@ -124,20 +124,35 @@ else:
     st.markdown("---")
 
     st.pyplot(fig)
-st.subheader("musim apa yang paling banyak disewa?")
+    
+st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
+fig, ax = plt.subplots(figsize=(12, 7))
 
-colors = ["#D3D3D3", "#D3D3D3", "#D3D3D3", "#90CAF9"]
-fig, ax = plt.subplots(figsize=(20, 10))
-sns.barplot(
-        y="count_cr", 
-        x="season",
-        data=season_df.sort_values(by="season", ascending=False),
-        palette=colors,
-        ax=ax
+# Mengurutkan data berdasarkan jumlah penyewaan (count_cr), bukan season
+season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
+season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
+season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
+
+# Menggunakan ax.barh untuk membuat grafik horizontal, sesuai gaya sebelumnya
+bars = ax.barh(
+    y=season_df_sorted["season_name"], 
+    width=season_df_sorted["count_cr"], 
+    color=custom_palette # Menggunakan palet warna yang sudah kita definisikan
+)
+
+# Menambahkan judul dan label
+ax.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
+ax.set_xlabel("Total Penyewaan")
+ax.set_ylabel("Musim")
+
+# Menambahkan label angka di ujung setiap bar
+for bar in bars:
+    width = bar.get_width()
+    ax.text(
+        width + 3000, # Memberi sedikit jarak dari ujung bar
+        bar.get_y() + bar.get_height() / 2, 
+        f'{width:,.0f}', 
+        va='center'
     )
-ax.set_title("Grafik Antar Musim", loc="center", fontsize=50)
-ax.set_ylabel(None)
-ax.set_xlabel(None)
-ax.tick_params(axis='x', labelsize=35)
-ax.tick_params(axis='y', labelsize=30)
+
 st.pyplot(fig)
