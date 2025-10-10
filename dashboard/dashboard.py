@@ -126,17 +126,22 @@ else:
 
     st.markdown("---")
 
-    st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
+st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
     fig3, ax3 = plt.subplots(figsize=(12, 7))
     season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
     season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
     season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
     
-    bars3 = sns.barplot(x="count_cr", y="season_name", data=season_df_sorted, palette=custom_palette, ax=ax3)
+    # PERBAIKAN: Mengganti sns.barplot dengan ax.barh yang lebih stabil
+    bars3 = ax3.barh(y=season_df_sorted["season_name"], width=season_df_sorted["count_cr"], color=custom_palette)
+    
     ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
     ax3.set_xlabel("Total Penyewaan")
     ax3.set_ylabel("Musim")
-    for bar in bars3.patches:
+    
+    # PERBAIKAN: Menyesuaikan loop untuk ax.barh
+    for bar in bars3:
         width = bar.get_width()
-        ax3.text(width + 3, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
+        ax3.text(width + 3000, bar.get_y() + bar.get_height()/2, f'{width:,.0f}', va='center')
     st.pyplot(fig3)
+
