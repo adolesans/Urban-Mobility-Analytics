@@ -40,5 +40,4 @@ streamlit run dashboard.py
 └── README.md
 ```
 
-## Lisensi
-Dibuat oleh andwynt(Annisa Dewiyanti)
+Dibuat oleh adolesans(Annisa Dewiyanti)
