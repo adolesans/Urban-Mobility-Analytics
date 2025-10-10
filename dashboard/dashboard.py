@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-import altair as alt 
+import altair as alt
 
 # --- PENGATURAN TEMA DAN PALET WARNA ---
 sns.set_theme(style="whitegrid")
@@ -131,7 +131,6 @@ else:
 
     st.markdown("---")
 
-    # --- PERUBAHAN: Grafik Jam menjadi Interaktif dengan Altair ---
     st.subheader("⏰ Pola Penyewaan Berdasarkan Jam")
     
     hourly_rentals_df = main_df_hour.groupby('hours')['count_cr'].sum().reset_index()
@@ -198,7 +197,9 @@ else:
                 1.  Alokasikan lebih banyak sepeda untuk menghadapi musim puncak.
                 2.  Manfaatkan musim sepi untuk melakukan perawatan pada armada sepeda.
             """
-            # --- FITUR DOWNLOAD DATA ---
+        )
+    
+    # --- FITUR DOWNLOAD DATA---
     st.markdown("---")
     st.subheader("Unduh Data yang Difilter")
     st.download_button(
@@ -207,5 +208,3 @@ else:
         file_name='filtered_data.csv',
         mime='text/csv'
     )
-        )
-
