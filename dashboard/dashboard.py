@@ -127,29 +127,39 @@ else:
     # st.pyplot(fig) 
     
     # PERBAIKAN: Seluruh blok grafik musim ini dipindahkan ke dalam blok 'else'
-    st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
-    fig3, ax3 = plt.subplots(figsize=(12, 7))
+   st.subheader("🍂 Pola Penyewaan Berdasarkan Musim")
+fig3, ax3 = plt.subplots(figsize=(12, 7))
 
-    season_df_sorted = season_df.sort_values(by="count_cr", ascending=False)
-    season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
-    season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
+# PERBAIKAN: Mengurutkan berdasarkan 'season' (1, 2, 3, 4) bukan 'count_cr'
+season_df_sorted = season_df.sort_values(by="season", ascending=True)
 
-    bars3 = ax3.barh(
-        y=season_df_sorted["season_name"], 
-        width=season_df_sorted["count_cr"], 
-        color=custom_palette
+# Proses sisa kode tetap sama
+season_labels = {1: 'Semi', 2: 'Panas', 3: 'Gugur', 4: 'Dingin'}
+season_df_sorted['season_name'] = season_df_sorted['season'].map(season_labels)
+
+# Menggunakan sns.barplot untuk membuat grafik vertikal seperti contoh
+bars3 = sns.barplot(
+    x="season_name", 
+    y="count_cr", 
+    data=season_df_sorted, 
+    palette=custom_palette, 
+    ax=ax3
+)
+
+ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
+ax3.set_xlabel("Musim")
+ax3.set_ylabel("Total Penyewaan")
+
+# Menyesuaikan loop untuk grafik vertikal
+for bar in bars3.patches:
+    ax3.text(
+        bar.get_x() + bar.get_width() / 2, 
+        bar.get_height(), 
+        f'{int(bar.get_height()):,}', 
+        ha='center', 
+        va='bottom', 
+        size=10, 
+        color='gray'
     )
 
-    ax3.set_title("Total Penyewaan Sepeda per Musim", fontsize=16)
-    ax3.set_xlabel("Total Penyewaan")
-    ax3.set_ylabel("Musim")
-
-    for bar in bars3:
-        width = bar.get_width()
-        ax3.text(
-            width + 3000, 
-            bar.get_y() + bar.get_height() / 2, 
-            f'{width:,.0f}', 
-            va='center'
-        )
-    st.pyplot(fig3)
+st.pyplot(fig3)
